@@ -8,12 +8,10 @@ from tkinter import filedialog
 from rq import Queue
 import time
 
-from models.UnstructuredModel import Unstructured
-from models.QdrantModel import Qdrant
+from models.UnstructuredModel import Unstructured, IngestionException
+from models.QdrantModel import Qdrant, InsertionException
 from models.ChatbotModel import Chatbot
 from langchain_openai import OpenAIEmbeddings
-from models.UnstructuredModel import IngestionException
-from models.QdrantModel import InsertionException
 
 LM_STUDIOS_SERVER_URL = os.getenv("LM_STUDIOS_SERVER_URL")
 

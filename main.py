@@ -29,7 +29,8 @@ def main():
 
     chat_label = tk.Label(root, text="Chat History")
     chat_history = st.ScrolledText()
-    chat_history.insert(tk.END, "AI: Hello, I am an AI chatbot enhanced with a RAG system! Upload your domain-specific files and I can answer with relevance and accuracy!")
+    chat_history.tag_config("ai", foreground="red")
+    chat_history.insert(tk.END, "AI: Hello, I am an AI chatbot enhanced with a RAG system! Upload your domain-specific files and I can answer with relevance and accuracy!", "ai")
     chat_entry = tk.Entry()
     chat_history["state"] = "disabled"
 
@@ -47,7 +48,7 @@ def main():
         
         ans = ask_model(new_text, workspace_name)
         chat_history["state"] = "normal"
-        chat_history.insert(tk.END, "\n\nAI: " + ans + "\n")
+        chat_history.insert(tk.END, "\n\nAI: " + ans + "\n", "ai")
         chat_history["state"] = "disabled"
 
     root.bind("<Return>", lambda _ : add_chat(_))
