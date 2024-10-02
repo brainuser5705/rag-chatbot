@@ -13,6 +13,8 @@ from models.QdrantModel import Qdrant, InsertionException
 from models.ChatbotModel import Chatbot
 from langchain_openai import OpenAIEmbeddings
 
+import asyncio
+
 LM_STUDIOS_SERVER_URL = os.getenv("LM_STUDIOS_SERVER_URL")
 
 embedding_model = OpenAIEmbeddings(
@@ -45,7 +47,7 @@ def upload_files(queue : Queue, workspace_name, message_label):
         file_name = os.path.basename(file_path)
 
         result = queue.enqueue(process_file, workspace_name, file_path)
-        time.sleep(2)
+
         if result is None:
             msg = f"File {file_name} failed to be processed..."
         else:
@@ -78,6 +80,7 @@ Searches the most relevant chunks in Qdrant and invokes the LLM for an answer.
 
 :param: query - the user-entered query
 """
-def ask_model(user_query, workspace_name):
+async def ask_model(user_query, workspace_name):
     returned_chunks = qdrant.query_point(workspace_name, user_query)
-    return chatbot.ask_question(str(returned_chunks), user_query)
+    response = await chatbot.ask_question(str(returned_chunks), user_query)
+    return response

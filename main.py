@@ -2,11 +2,14 @@ import tkinter as tk
 from tkinter import simpledialog
 import tkinter.scrolledtext as st
 
+from async_tkinter_loop import async_mainloop
+
 from redis import Redis
 from rq import Queue
 
-from process import create_workspace, upload_files, ask_model
+import asyncio
 
+from process import create_workspace, upload_files, ask_model
 
 """
 Runs the chatbot application and job queue
@@ -38,7 +41,7 @@ def main():
     chat_history.pack()
     chat_entry.pack()
 
-    def add_chat(_):
+    async def add_chat(_):
         new_text = chat_entry.get()
         chat_history["state"] = "normal"
         chat_history.insert(tk.END, "\n\nUser: " + new_text)
@@ -46,14 +49,15 @@ def main():
         chat_history["state"] = "disabled"
         chat_entry.delete(0, tk.END)
         
-        ans = ask_model(new_text, workspace_name)
+        ans = await ask_model(new_text, workspace_name)
+
         chat_history["state"] = "normal"
         chat_history.insert(tk.END, "\n\nAI: " + ans + "\n", "ai")
         chat_history["state"] = "disabled"
 
-    root.bind("<Return>", lambda _ : add_chat(_))
+    root.bind("<Return>", lambda _ : asyncio.create_task(add_chat(_)))
 
-    root.mainloop()
+    async_mainloop(root)
 
 if __name__ == "__main__":
     main()

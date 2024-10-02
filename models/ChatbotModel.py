@@ -37,10 +37,11 @@ class Chatbot:
         )
         workflow = StateGraph(state_schema=State)
         parser = StrOutputParser()
+        chain = prompt_template | llm | parser
 
-        def call_model(state: State):
-            chain = prompt_template | llm | parser
-            return {"messages": [chain.invoke(state)]}
+        async def call_model(state: State):
+            response = await chain.ainvoke(state)
+            return {"messages": response}
         
         workflow.add_edge(START, "model")
         workflow.add_node("model", call_model)
@@ -48,14 +49,16 @@ class Chatbot:
         memory = MemorySaver()
         self.app = workflow.compile(checkpointer=memory)
 
-    def ask_question(self, returned_chunks, question):
+    async def ask_question(self, returned_chunks, question):
 
-        output = self.app.invoke(
+        # perhaps output neeeds to be a future result
+        
+
+        output = await self.app.ainvoke(
             {"messages": [HumanMessage(question)], "context": returned_chunks},
             {"configurable": {"thread_id": "dummy_value"}}
         )
         
-        print(output["messages"])
         return output["messages"][-1].content
         
         
